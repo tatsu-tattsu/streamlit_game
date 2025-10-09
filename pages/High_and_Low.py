@@ -9,7 +9,6 @@ st.write("" \
 "・カードは１〜９までの数字が２枚ずつあります" \
 "・どのカードも引く確率は同じです")
 
-c = True
 def judge(a ,b):
     if a < b:
         return 0
@@ -25,6 +24,10 @@ def winlose(a, b):
         return st.success("You Win")
     else:
         return st.error("You Lose")
+    
+def reset(a):
+    if st.button("reset"):
+        a = 0
 
 def highandlow():
     f_number = 0
@@ -37,16 +40,13 @@ def highandlow():
     statu = 0
     if st.button("High"):
         statu = 1
-        st.write(f"２枚目の数字：{b_number}")
-        winlose(judged, statu)
-        if st.button("reset"):
-            statu = 0
     elif st.button("Low"):
         statu = 2
+    else:
+        statu = 0
+    if statu != 0:
         st.write(f"２枚目の数字：{b_number}")
         winlose(judged, statu)
-        st.button("reset")
-        if st.button("reset"):
-            statu = 0
+        reset(statu)
 
 highandlow()
