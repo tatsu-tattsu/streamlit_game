@@ -1,7 +1,7 @@
 import streamlit as st
 
-st.title("最小公倍数判定")
-st.write("任意の整数二つの最小公倍数を判定します")
+st.title("最大公約数判定")
+st.write("任意の整数二つの最大公約数を判定します")
 number1 = int(st.number_input("一つ目の数字を入力してください", format="%.0f"))
 number2 = int(st.number_input("二つ目の数字を入力してください", format="%.0f"))
 bigger = 0
@@ -30,4 +30,4 @@ for i in range(1, bigger + 1):
     #st.write(multiple2)
     if multiple1 == multiple2:
         max_multiple = multiple1
-st.write(f"{number1}と{number2}の最小公倍数は{max_multiple}です")
+st.write(f"{number1}と{number2}の最大公約数は{max_multiple}です")
