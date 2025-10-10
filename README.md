@@ -1,5 +1,7 @@
 # streamlit_game
-practice of streamlit
+conflictさせるためにあえて更新をかけています
+## ここに意味はないよ！
+ここに意味はないよ！
 ## 起動方法​
 
 以下のコマンドでアプリを起動できます。​​
