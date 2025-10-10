@@ -30,8 +30,7 @@ def reset(a):
         a = 3
 
 def firstrandamization(a, b):
-    a = rd.randint(1, 13)
-    b = rd.randint(1, 13)
+    return a == rd.randint(1, 13), b == rd.randint(1, 13)
 
 
 def highandlow(f_number, b_number):
@@ -58,4 +57,6 @@ f = 0
 b = 0
 
 firstrandamization(f, b)
-highandlow()
+st.write(f)
+st.write(b)
+highandlow(f, b)
