@@ -27,7 +27,7 @@ def winlose(a, b):
     
 def reset(a):
     if st.button("reset"):
-        a = 0
+        a = 3
 
 def highandlow():
     f_number = 0
@@ -37,14 +37,14 @@ def highandlow():
     b_number = rd.randint(1 , 10)
     st.write(f"１枚目の数字：{f_number}")
     judged = judge(f_number, b_number)
-    statu = 0
+    statu = 3
     if st.button("High"):
-        statu = 1
-    elif st.button("Low"):
-        statu = 2
-    else:
         statu = 0
-    if statu != 0:
+    elif st.button("Low"):
+        statu = 1
+    else:
+        statu = 3
+    if statu != 3:
         st.write(f"２枚目の数字：{b_number}")
         winlose(judged, statu)
         reset(statu)
