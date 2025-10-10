@@ -30,9 +30,6 @@ def reset(a):
         a = 3
 
 def highandlow():
-    f_number = 0
-    b_number = 0
-    judged = 0
     f_number = rd.randint(1 , 10)
     b_number = rd.randint(1 , 10)
     st.write(f"１枚目の数字：{f_number}")
@@ -45,6 +42,9 @@ def highandlow():
     else:
         statu = 3
     if statu != 3:
+        f_number = 0
+        b_number = 0
+        judged = 0
         st.write(f"２枚目の数字：{b_number}")
         winlose(judged, statu)
         reset(statu)
