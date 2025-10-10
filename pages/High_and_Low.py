@@ -1,3 +1,4 @@
+"""
 import streamlit as st
 import random as rd
 
@@ -60,3 +61,6 @@ firstrandamization(f, b)
 st.write(f)
 st.write(b)
 highandlow(f, b)
+"""
+
+# ここより上は作ったには作ったけどどうしようもなくなって廃棄したコード
