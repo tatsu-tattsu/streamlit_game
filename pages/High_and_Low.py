@@ -6,7 +6,7 @@ st.title("High and Low Game!")
 st.write("数字を予想して、HighかLowか当ててください")
 st.write("ルール")
 st.write("" \
-"・カードは１〜９までの数字が２枚ずつあります" \
+"・カードは１〜13までの数字が２枚ずつあります" \
 "・どのカードも引く確率は同じです")
 
 def judge(a ,b):
@@ -29,9 +29,12 @@ def reset(a):
     if st.button("reset"):
         a = 3
 
-def highandlow():
-    f_number = rd.randint(1 , 10)
-    b_number = rd.randint(1 , 10)
+def firstrandamization(a, b):
+    a = rd.randint(1, 13)
+    b = rd.randint(1, 13)
+
+
+def highandlow(f_number, b_number):
     st.write(f"１枚目の数字：{f_number}")
     judged = judge(f_number, b_number)
     statu = 3
@@ -45,8 +48,14 @@ def highandlow():
         f_number = 0
         b_number = 0
         judged = 0
+        f_number = rd.randint(1 , 10)
+        b_number = rd.randint(1 , 10)
         st.write(f"２枚目の数字：{b_number}")
         winlose(judged, statu)
         reset(statu)
 
+f = 0
+b = 0
+
+firstrandamization(f, b)
 highandlow()
