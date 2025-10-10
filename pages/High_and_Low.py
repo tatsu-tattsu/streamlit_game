@@ -1,5 +1,5 @@
 """
-import streamlit as st
+
 import random as rd
 
 st.title("High and Low Game!")
