@@ -1,98 +1,164 @@
 import streamlit as st
-import json
-from pathlib import Path
-import random as rd
+import random
 
-# ----Pathを指定して JSONファイルを読み込み ----
-json_path = Path(__file__).parent.parent / "sample_data" / "highandlow_round3.json"
-with open(json_path, "r", encoding="utf-8") as f:
-    data = json.load(f)
-if ["deck"] not in st.session_state:
-    st.session_state = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-if ["round_data"] not in st.session_state:
-    st.session_state["round_data"] = {
-        "round": 1,
-        "wallet": 100,
-        "win_count": 0,
-        "lose_count": 0,
-        "in": 0,
-        "out": 0,
-        "all": 0
-    }
-if ["round_counter"] not in st.session_state:
+# ===============================
+# 初期化処理（New Game時にも呼ぶ）
+# ===============================
+def initialize_game():
+    st.session_state["deck"] = list(range(1, 14))
+    random.shuffle(st.session_state["deck"])
+    st.session_state["wallet"] = 100
+    st.session_state["bet"] = 10
     st.session_state["round_counter"] = 1
-if ["wallet"] not in st.session_state:
-    st.session_state["wallet"] = st.session_state["wallet"]
-if ["bet"] not in st.session_state:
-    st.session_state = 1
-if ["f_number"] not in st.session_state:
-    st.session_state = 0
-if ["b_number"] not in st.session_state:
-    st.session_state = 0
-if ["judge"] not in st.session_state:
-    st.session_state = 0  #後のカードが大きければ0、前のカードが大きければ1、同じだったら2
-if ["highlow"] not in st.session_state:
-    st.session_state = 0  #highの時は0、lowの時は1
-if ["winlose"] not in st.session_state:
-    st.session_state = 0  #勝利の時は0、敗北の時は1、引き分けの時は2
+    st.session_state["base_card"] = None
+    st.session_state["result_card"] = None
+    st.session_state["player_choice"] = None
+    st.session_state["round_history"] = []
+    st.session_state["game_over"] = False
+    st.session_state["phase"] = "start"  # ← フェーズ管理追加
 
-def betting(a, b):  #aにはwallet、bにはbetを入力
-    min_bet = 1
-    max_bet = a
-    b = st.number_input("掛け金を入力してください", min_value = min_bet, max_value = max_bet, value = 10, format = "%.0f")
-    st.write(f"掛け金：{b}")
+# ゲーム開始時に初期化
+if "phase" not in st.session_state:
+    initialize_game()
 
-def output_number(a, b, c):  #aにはdeck、bにはf_number、cにはb_numberを入力
-    b = rd.choice(a)
-    a.remove(b)
-    c = rd.choice(a)
-    a.remove(c)
+# ===============================
+# カードを1枚引く
+# ===============================
+def draw_card():
+    if st.session_state["deck"]:
+        return st.session_state["deck"].pop(0)
+    return None
 
-def judge(a, b, c):  #aにはf_number、bにはb_number、cにはjudgeを入力
-    if a < b:
-        c = 0
-    elif a > b:
-        c = 1
+# ===============================
+# フェーズ①：ベースカードを引く
+# ===============================
+def draw_base_card():
+    st.session_state["base_card"] = draw_card()
+    st.session_state["phase"] = "declare"
+
+# ===============================
+# フェーズ②：High/Low 宣言
+# ===============================
+def declare(choice):
+    st.session_state["player_choice"] = choice
+    st.session_state["result_card"] = draw_card()
+
+    base = st.session_state["base_card"]
+    result = st.session_state["result_card"]
+    bet = st.session_state["bet"]
+    wallet = st.session_state["wallet"]
+
+    if choice == "High" and result > base:
+        outcome = "WIN"
+        wallet += bet
+    elif choice == "Low" and result < base:
+        outcome = "WIN"
+        wallet += bet
+    elif result == base:
+        outcome = "DRAW"
     else:
-        c = 2
+        outcome = "LOSE"
+        wallet -= bet
 
-def input_highlow(a, b):  #aにはhighlow、bにはplayer_shoiceを入力
-    st.write("あなたの予想は？")
-    if st.button("High"):
-        a = 0
-    elif st.button("Low"):
-        a = 1
+    st.session_state["wallet"] = wallet
+    st.session_state["round_history"].append({
+        "round": st.session_state["round_counter"],
+        "base": base,
+        "result": result,
+        "choice": choice,
+        "outcome": outcome,
+        "wallet_after": wallet
+    })
 
-def winlose(a, b, c):  #aにはjudge、bにはhighlow、cにはwinloseを入力
-    if a == b:
-        c = 0
-    elif a == 2:
-        c = 2
+    # 🧨 ここを追加 → walletが0なら即ゲームオーバー
+    if wallet <= 0:
+        st.session_state["game_over"] = True
+        st.session_state["phase"] = "end"
     else:
-        c = 1
+        st.session_state["phase"] = "result"
 
-def result(a, b, c):  #aにはwinlose、bにはbet、cにはwalletを入力
-    if a == 0:
-        st.success("You Win!!")
-        c += b
-        st.write(f"あなたの所持チップは{c}枚まで増えた！")
-    elif a == 1:
-        st.error("You Lose!!")
-        c -= b
-        st.write(f"あなたの所持チップは{c}枚まで減った！")
+
+# ===============================
+# フェーズ③：次ラウンドへ
+# ===============================
+def next_round():
+    st.session_state["round_counter"] += 1
+
+    # 終了条件チェック
+    if st.session_state["round_counter"] > 3 or st.session_state["wallet"] <= 0 or not st.session_state["deck"]:
+        st.session_state["game_over"] = True
+        st.session_state["phase"] = "end"
     else:
-        st.warning("Draw!!")
-        st.write(f"あなたの所持チップは{c}枚のまま変わらなかった！")
+        st.session_state["base_card"] = None
+        st.session_state["result_card"] = None
+        st.session_state["player_choice"] = None
+        st.session_state["bet"] = 10  # ←★ ラウンド移動時にデフォルトベット額をリセット
+        st.session_state["phase"] = "start"
 
-def judge_continue(a, b):
-    pass
 
-def game_continue(a, b, c, d, e, f, g):  #ここでwallet以外の全てのデータをリセットする。aがround_counterであること以外は順不同
-    if st.button("Next game"):
-        a += 1
-        b = 0
-        c = 0
-        d = 0
-        e = 0
-        f = 0
-        g = 0
+# ===============================
+# フェーズ④：New Game
+# ===============================
+def new_game():
+    initialize_game()
+
+# ===============================
+# UI描画
+# ===============================
+st.title("High & Low カードゲーム")
+
+# 💥 New Game ボタン → 完全リセット
+if st.button("New Game"):
+    new_game()
+
+# 終了時
+if st.session_state["game_over"]:
+    st.header("ゲーム終了！")
+    wins = sum(1 for r in st.session_state["round_history"] if r["outcome"] == "WIN")
+    draws = sum(1 for r in st.session_state["round_history"] if r["outcome"] == "DRAW")
+    losses = sum(1 for r in st.session_state["round_history"] if r["outcome"] == "LOSE")
+    st.write(f"勝ち：{wins} 回 / 負け：{losses} 回 / 引き分け：{draws} 回")
+    st.write(f"最終チップ：{st.session_state['wallet']}")
+    st.write("**勝負履歴**")
+    for h in st.session_state["round_history"]:
+        st.write(
+            f"Round {h['round']}: ベース {h['base']} / 結果 {h['result']} / 宣言 {h['choice']} / "
+            f"勝敗 {h['outcome']} / 所持チップ {h['wallet_after']}"
+        )
+
+# ===============================
+# フェーズごとのUI制御
+# ===============================
+else:
+    st.write(f"### Round {st.session_state['round_counter']}")
+    st.write(f"所持チップ：{st.session_state['wallet']}")
+
+    # ベット額設定
+    st.session_state["bet"] = st.number_input(
+        "ベット額",
+        min_value=1,
+        max_value=st.session_state["wallet"],
+        value=1
+    )
+
+    # フェーズ① ベースカード
+    if st.session_state["phase"] == "start":
+        if st.button("カードを引く", on_click=draw_base_card):
+            pass
+
+    # フェーズ② 宣言
+    elif st.session_state["phase"] == "declare":
+        st.write(f"ベースカード： {st.session_state['base_card']}")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.button("High", on_click=declare, args=("High",))
+        with col2:
+            st.button("Low", on_click=declare, args=("Low",))
+
+    # フェーズ③ 結果
+    elif st.session_state["phase"] == "result":
+        last = st.session_state["round_history"][-1]
+        st.write(f"ベースカード： {last['base']}")
+        st.write(f"結果カード： {last['result']}")
+        st.write(f"結果： {last['outcome']}")
+        st.button("Next Round", on_click=next_round)
