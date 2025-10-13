@@ -1,2 +1,2 @@
 # streamlit_game
-practice of streamlit.
+practice of streamlit

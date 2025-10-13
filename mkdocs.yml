@@ -1,0 +1,13 @@
+site_name: card games app
+site_url: https://tatsu-tattsu.github.io/streamlit_game-1/
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - about: about.md
+  - game:
+    - High and Low: howtouse/high_and_low.md
+repo_url: https://github.com/tatsu-tattsu/streamlit_game-1
+extra:
+  version:
+    provider: mike

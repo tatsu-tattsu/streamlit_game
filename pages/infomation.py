@@ -1,0 +1,81 @@
+"""
+
+import random as rd
+
+st.title("High and Low Game!")
+
+st.write("数字を予想して、HighかLowか当ててください")
+st.write("ルール")
+st.write("" \
+"・カードは１〜13までの数字が２枚ずつあります" \
+"・どのカードも引く確率は同じです")
+
+def judge(a ,b):
+    if a < b:
+        return 0
+    elif a > b:
+        return 1
+    else:
+        return 2
+
+def winlose(a, b):
+    if a == 2:
+        return st.info("Draw")
+    elif a == b:
+        return st.success("You Win")
+    else:
+        return st.error("You Lose")
+    
+def reset(a):
+    if st.button("reset"):
+        a = 3
+
+def firstrandamization(a, b):
+    return a == rd.randint(1, 13), b == rd.randint(1, 13)
+
+
+def highandlow(f_number, b_number):
+    st.write(f"１枚目の数字：{f_number}")
+    judged = judge(f_number, b_number)
+    statu = 3
+    if st.button("High"):
+        statu = 0
+    elif st.button("Low"):
+        statu = 1
+    else:
+        statu = 3
+    if statu != 3:
+        f_number = 0
+        b_number = 0
+        judged = 0
+        f_number = rd.randint(1 , 10)
+        b_number = rd.randint(1 , 10)
+        st.write(f"２枚目の数字：{b_number}")
+        winlose(judged, statu)
+        reset(statu)
+
+f = 0
+b = 0
+
+firstrandamization(f, b)
+st.write(f)
+st.write(b)
+highandlow(f, b)
+"""
+
+# ここより上は作ったには作ったけどどうしようもなくなって廃棄したコード
+# 消すのも勿体無いからゲームのプレイ方法のページにしようか検討中
+# しました。以下説明文
+import streamlit as st
+
+st.title("High and Low ゲームの説明書")
+
+st.write("ルール")
+st.write("一枚目のカードと２枚目のカードの大小を予想するゲームです")
+st.write("まず初めにベットするチップの額を決めます")
+st.write("一枚目のカードが公開されるので、HighかLowを宣言します")
+st.write("２枚目のカードと結果が表示されます")
+st.write("Next Roundボタンを押すと次のラウンドに進めます")
+st.write("最大3ラウンドです")
+st.write("所持チップがなくなったらゲームオーバーです")
+st.write("新しくゲームを始める際はNew gameボタンを押してください")
