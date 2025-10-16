@@ -1,18 +1,3 @@
-"""
-ここにはルールを作るための下書きが残してあります
-・使用するのは52枚のトランプ
-・トランプのデッキは二重多層構造のlistであり、
-　一層目の中に52枚のカード分のリストが存在し、二層目にカードの数字と絵柄が格納されている
-・大きな構造はHigh and Lowを利用(phase,newgameなどのシステム)
-・5ラウンド制
-・常に"New Game" ボタンは表示しておく(流用)
-・phase"start"の時点で、画面上には所持チップの総数とベット額を決める入力欄、
-　"ゲームを始める"ボタンが存在する(High and Lowを流用)
-・ゲームを始めるを押すと、プレイヤーとオーナーにデッキからカードが２枚づつ渡される。
-　この時、プレイヤーには自分のカードの絵柄と数字が開示される。そして、phaseが"first"に変化する
-
-"""
-
 import streamlit as st
 import random
 from collections import Counter
@@ -21,6 +6,8 @@ from collections import Counter
 # 初期化処理（New Game時にも呼ぶ）
 # ===============================
 def initialize_game():
+    """_summary_
+    """
     st.session_state["deck"] = [
         [i, suit] for suit in ["spade", "heart", "clover", "daia"] for i in range(1, 14)
     ]
@@ -28,8 +15,7 @@ def initialize_game():
     st.session_state["wallet"] = 100
     st.session_state["bet"] = 10
     st.session_state["round_counter"] = 1
-    # 各ハンドは「カードを格納するリスト（0番にカードが入る想定）」にする
-    st.session_state["player_card1"] = []  # will contain one card: [value, suit]
+    st.session_state["player_card1"] = []
     st.session_state["player_card2"] = []
     st.session_state["owner_card1"] = []
     st.session_state["owner_card2"] = []
@@ -57,6 +43,11 @@ if "phase" not in st.session_state:
 # カードを1枚引く
 # ===============================
 def draw_card():
+    """_summary_
+
+    Returns:
+        _type_: _description_
+    """
     if st.session_state["deck"]:
         return st.session_state["deck"].pop(0)  # 先頭から引く（小デッキなので十分）
     return None
@@ -65,7 +56,8 @@ def draw_card():
 # フェーズ①：playerとownerがカードを引き、５枚のオープンカードが引かれる
 # ===============================
 def draw_base_card():
-    # 引くカードを個別に取得してそれぞれリストにappendする（各handは1枚格納のリスト）
+    """_summary_
+    """
     a = draw_card(); b = draw_card(); c = draw_card(); d = draw_card()
     e = draw_card(); f = draw_card(); g = draw_card(); h = draw_card(); i = draw_card()
     st.session_state["player_card1"].append(a)
@@ -77,16 +69,20 @@ def draw_base_card():
     st.session_state["open_card3"].append(g)
     st.session_state["open_card4"].append(h)
     st.session_state["open_card5"].append(i)
-    st.session_state["phase"] = "firstopen"  # タイプミス修正
+    st.session_state["phase"] = "firstopen"
 
 # ===============================
 # フェーズ②：firstopen
 # ===============================
 def firstopen(choice):
+    """_summary_
+
+    Args:
+        choice (_type_): _description_
+    """
     st.session_state["player_choice1"] = choice
     bet = st.session_state["bet"]
     wallet = st.session_state["wallet"]
-    # bet を2倍にできるかどうか（十分な所持があるか）を判定
     if choice == "reise":
         if bet * 2 <= wallet:
             st.session_state["bet"] = bet * 2
@@ -333,7 +329,7 @@ def calculate():
         st.session_state["game_over"] = True
         st.session_state["phase"] = "end"
     else:
-        st.session_state["phase"] = "result"
+        pass
 
 # ===============================
 # フェーズ⑥：次ラウンドへ
@@ -476,15 +472,10 @@ else:
             st.button("allin", on_click=thirdopen, args=("allin",))
 
     # フェーズ⑤ 結果
-    elif st.session_state["phase"] == "result":
+    elif st.session_state["phase"] == "calculate":
+        calculate()
         last = st.session_state["round_history"][-1]
         st.write("ベースカード（player）:", st.session_state["player_card_list"])
         st.write("ベースカード（owner）:", st.session_state["owner_card_list"])
         st.write(f"結果： {last['outcome']}")
         st.button("Next Round", on_click=next_round)
-
-    # fallback: すぐ計算に進める場合
-    elif st.session_state["phase"] == "calculate":
-        # 計算を実行して結果画面へ
-        calculate()
-        st.experimental_rerun()
