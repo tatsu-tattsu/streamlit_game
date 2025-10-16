@@ -27,7 +27,7 @@ def initialize_game():
     st.session_state["wallet2"] = 100
     st.session_state["bet2"] = 10
     st.session_state["round_counter2"] = 1
-    st.session_state["player_card1"] = []
+    # st.session_state["player_card1"] = []
     st.session_state["player_card2"] = []
     st.session_state["owner_card1"] = []
     st.session_state["owner_card2"] = []
@@ -74,15 +74,15 @@ def draw_base_card():
     """
     a = draw_card(); b = draw_card(); c = draw_card(); d = draw_card()
     e = draw_card(); f = draw_card(); g = draw_card(); h = draw_card(); i = draw_card()
-    st.session_state["player_card1"].append(a)
-    st.session_state["player_card2"].append(b)
-    st.session_state["owner_card1"].append(c)
-    st.session_state["owner_card2"].append(d)
-    st.session_state["open_card1"].append(e)
-    st.session_state["open_card2"].append(f)
-    st.session_state["open_card3"].append(g)
-    st.session_state["open_card4"].append(h)
-    st.session_state["open_card5"].append(i)
+    # st.session_state["player_card2"].append(a)
+    st.session_state["player_card2"].append(a, b)
+    # st.session_state["owner_card1"].append(c)
+    st.session_state["owner_card2"].append(c, d)
+    # st.session_state["open_card1"].append(e)
+    st.session_state["open_card2"].append(e, f, g, h, i)
+    # st.session_state["open_card3"].append(g)
+    # st.session_state["open_card4"].append(h)
+    # st.session_state["open_card5"].append(i)
     st.session_state["phase2"] = "firstopen"
 
 # ===============================
@@ -177,13 +177,13 @@ def calculate():
 
     # player_card_list / owner_card_list を構築（視認用）
     st.session_state["player_card_list"] = [
-        st.session_state["player_card1"][0] if st.session_state["player_card1"] else None,
         st.session_state["player_card2"][0] if st.session_state["player_card2"] else None,
-        st.session_state["open_card1"][0] if st.session_state["open_card1"] else None,
-        st.session_state["open_card2"][0] if st.session_state["open_card2"] else None,
-        st.session_state["open_card3"][0] if st.session_state["open_card3"] else None,
-        st.session_state["open_card4"][0] if st.session_state["open_card4"] else None,
-        st.session_state["open_card5"][0] if st.session_state["open_card5"] else None,
+        st.session_state["player_card2"][1] if st.session_state["player_card2"] else None,
+        st.session_state["open_card2"][0] if st.session_state["open_card1"] else None,
+        st.session_state["open_card2"][1] if st.session_state["open_card2"] else None,
+        st.session_state["open_card2"][2] if st.session_state["open_card3"] else None,
+        st.session_state["open_card2"][3] if st.session_state["open_card4"] else None,
+        st.session_state["open_card2"][4] if st.session_state["open_card5"] else None,
     ]
 
     player_card_number = [c[0] for c in st.session_state["player_card_list"] if c is not None]
