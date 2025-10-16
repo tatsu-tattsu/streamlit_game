@@ -8,13 +8,25 @@ from collections import Counter
 def initialize_game():
     """_summary_
     """
-    st.session_state["deck"] = [
+    st.session_state["deck2"] = [
         [i, suit] for suit in ["spade", "heart", "clover", "daia"] for i in range(1, 14)
     ]
-    random.shuffle(st.session_state["deck"])
-    st.session_state["wallet"] = 100
-    st.session_state["bet"] = 10
-    st.session_state["round_counter"] = 1
+    st.session_state["hands"] = [
+        "error",
+        "ハイカード",
+        "ワンペア",
+        "ツーペア",
+        "スリーカード",
+        "ストレート",
+        "フラッシュ",
+        "フルハウス",
+        "フォーカード",
+        "ストレートフラッシュ"
+        ]
+    random.shuffle(st.session_state["deck2"])
+    st.session_state["wallet2"] = 100
+    st.session_state["bet2"] = 10
+    st.session_state["round_counter2"] = 1
     st.session_state["player_card1"] = []
     st.session_state["player_card2"] = []
     st.session_state["owner_card1"] = []
@@ -27,16 +39,18 @@ def initialize_game():
     st.session_state["player_choice1"] = None
     st.session_state["player_choice2"] = None
     st.session_state["player_choice3"] = None
-    st.session_state["round_history"] = []
-    st.session_state["game_over"] = False
-    st.session_state["phase"] = "start"  # フェーズ管理
+    st.session_state["round_history2"] = []
+    st.session_state["game_over2"] = False
+    st.session_state["phase2"] = "start"  # フェーズ管理
     st.session_state["allin"] = False
     st.session_state["fold"] = False
     st.session_state["player_card_list"] = None
     st.session_state["owner_card_list"] = None
+    st.session_state["player_point"] = 0
+    st.session_state["owner_point"] = 0
 
 # 初期化チェック
-if "phase" not in st.session_state:
+if "phase2" not in st.session_state:
     initialize_game()
 
 # ===============================
@@ -48,8 +62,8 @@ def draw_card():
     Returns:
         _type_: _description_
     """
-    if st.session_state["deck"]:
-        return st.session_state["deck"].pop(0)  # 先頭から引く（小デッキなので十分）
+    if st.session_state["deck2"]:
+        return st.session_state["deck2"].pop(0)  # 先頭から引く（小デッキなので十分）
     return None
 
 # ===============================
@@ -69,7 +83,7 @@ def draw_base_card():
     st.session_state["open_card3"].append(g)
     st.session_state["open_card4"].append(h)
     st.session_state["open_card5"].append(i)
-    st.session_state["phase"] = "firstopen"
+    st.session_state["phase2"] = "firstopen"
 
 # ===============================
 # フェーズ②：firstopen
@@ -81,85 +95,85 @@ def firstopen(choice):
         choice (_type_): _description_
     """
     st.session_state["player_choice1"] = choice
-    bet = st.session_state["bet"]
-    wallet = st.session_state["wallet"]
+    bet = st.session_state["bet2"]
+    wallet = st.session_state["wallet2"]
     if choice == "reise":
         if bet * 2 <= wallet:
-            st.session_state["bet"] = bet * 2
-            st.session_state["phase"] = "secondopen"
+            st.session_state["bet2"] = bet * 2
+            st.session_state["phase2"] = "secondopen"
         else:
             # insufficient -> allin to wallet
-            st.session_state["bet"] = wallet
+            st.session_state["bet2"] = wallet
             st.session_state["allin"] = True
-            st.session_state["phase"] = "secondopen"
+            st.session_state["phase2"] = "secondopen"
     elif choice == "allin":
-        st.session_state["bet"] = wallet
+        st.session_state["bet2"] = wallet
         st.session_state["allin"] = True
-        st.session_state["phase"] = "secondopen"
+        st.session_state["phase2"] = "secondopen"
     elif choice == "check":
-        st.session_state["phase"] = "secondopen"
+        st.session_state["phase2"] = "secondopen"
     else:  # fold
         st.session_state["fold"] = True
-        st.session_state["phase"] = "calculate"
+        st.session_state["phase2"] = "calculate"
 
 # ===============================
 # フェーズ③：secondopen
 # ===============================
 def secondopen(choice):
     st.session_state["player_choice2"] = choice
-    bet = st.session_state["bet"]
-    wallet = st.session_state["wallet"]
+    bet = st.session_state["bet2"]
+    wallet = st.session_state["wallet2"]
     if choice == "reise":
         if bet * 2 <= wallet:
-            st.session_state["bet"] = bet * 2
-            st.session_state["phase"] = "thirdopen"
+            st.session_state["bet2"] = bet * 2
+            st.session_state["phase2"] = "thirdopen"
         else:
-            st.session_state["bet"] = wallet
+            st.session_state["bet2"] = wallet
             st.session_state["allin"] = True
-            st.session_state["phase"] = "thirdopen"
+            st.session_state["phase2"] = "thirdopen"
     elif choice == "allin":
-        st.session_state["bet"] = wallet
+        st.session_state["bet2"] = wallet
         st.session_state["allin"] = True
-        st.session_state["phase"] = "thirdopen"
+        st.session_state["phase2"] = "thirdopen"
     elif choice == "check":
-        st.session_state["phase"] = "thirdopen"
+        st.session_state["phase2"] = "thirdopen"
     else:  # fold
         st.session_state["fold"] = True
-        st.session_state["phase"] = "calculate"
+        st.session_state["phase2"] = "calculate"
 
 # ===============================
 # フェーズ④：thirdopen
 # ===============================
 def thirdopen(choice):
     st.session_state["player_choice3"] = choice
-    bet = st.session_state["bet"]
-    wallet = st.session_state["wallet"]
+    bet = st.session_state["bet2"]
+    wallet = st.session_state["wallet2"]
     if choice == "reise":
         if bet * 2 <= wallet:
-            st.session_state["bet"] = bet * 2
-            st.session_state["phase"] = "calculate"
+            st.session_state["bet2"] = bet * 2
+            st.session_state["phase2"] = "calculate"
         else:
-            st.session_state["bet"] = wallet
+            st.session_state["bet2"] = wallet
             st.session_state["allin"] = True
-            st.session_state["phase"] = "calculate"
+            st.session_state["phase2"] = "calculate"
     elif choice == "allin":
-        st.session_state["bet"] = wallet
+        st.session_state["bet2"] = wallet
         st.session_state["allin"] = True
-        st.session_state["phase"] = "calculate"
+        st.session_state["phase2"] = "calculate"
     elif choice == "check":
         # check の場合はそのまま calculate に遷移（場は全部見える想定）
-        st.session_state["phase"] = "calculate"
+        st.session_state["phase2"] = "calculate"
     else:  # fold
         st.session_state["fold"] = True
-        st.session_state["phase"] = "calculate"
+        st.session_state["phase2"] = "calculate"
 
 # ===============================
 # フェーズ⑤：calculate（勝敗判定）
 # ===============================
 def calculate():
     # 現在ウォレットをローカルに取り出す（計算後に保存）
-    wallet = st.session_state["wallet"]
-    bet = st.session_state["bet"]
+    wallet = st.session_state["wallet2"]
+    bet = st.session_state["bet2"]
 
     # player_card_list / owner_card_list を構築（視認用）
     st.session_state["player_card_list"] = [
@@ -227,6 +241,8 @@ def calculate():
     else:
         player_point = [1, player_card_number_max]
 
+    st.session_state["player_point"] = player_point[0]
+
     # ---------------- owner 側 ----------------
     st.session_state["owner_card_list"] = [
         st.session_state["owner_card1"][0] if st.session_state["owner_card1"] else None,
@@ -287,6 +303,8 @@ def calculate():
     else:
         owner_point = [1, owner_card_number_max]
 
+    st.session_state["owner_point"] = owner_point[0]
+
     # ---------------- 勝敗判定 ----------------
     # fold の場合は player 負け（所有チップは減る）
     if st.session_state["fold"]:
@@ -318,16 +336,16 @@ def calculate():
                     outcome = "DRAW"  # 完全同値
 
     # 保存と履歴登録
-    st.session_state["wallet"] = wallet
-    st.session_state["round_history"].append({
-        "round": st.session_state["round_counter"],
+    st.session_state["wallet2"] = wallet
+    st.session_state["round_history2"].append({
+        "round": st.session_state["round_counter2"],
         "outcome": outcome,
         "wallet_after": wallet
     })
 
-    if wallet <= 0 or st.session_state["round_counter"] >= 5:
-        st.session_state["game_over"] = True
-        st.session_state["phase"] = "end"
+    if wallet <= 0 or st.session_state["round_counter2"] >= 5:
+        st.session_state["game_over2"] = True
+        st.session_state["phase2"] = "end"
     else:
         pass
 
@@ -335,12 +353,12 @@ def calculate():
 # フェーズ⑥：次ラウンドへ
 # ===============================
 def next_round():
-    st.session_state["round_counter"] += 1
+    st.session_state["round_counter2"] += 1
 
     # 終了条件チェック
-    if st.session_state["round_counter"] > 5 or st.session_state["wallet"] <= 0 or not st.session_state["deck"]:
-        st.session_state["game_over"] = True
-        st.session_state["phase"] = "end"
+    if st.session_state["round_counter2"] > 5 or st.session_state["wallet2"] <= 0 or not st.session_state["deck"]:
+        st.session_state["game_over2"] = True
+        st.session_state["phase2"] = "end"
         return
 
     # ハンドやオープンカードを空に戻す（次ラウンド準備）
@@ -356,10 +374,12 @@ def next_round():
     st.session_state["player_choice1"] = None
     st.session_state["player_choice2"] = None
     st.session_state["player_choice3"] = None
-    st.session_state["bet"] = 1  # ラウンド移動時にデフォルトベット額をリセット
+    st.session_state["bet2"] = 1  # ラウンド移動時にデフォルトベット額をリセット
     st.session_state["fold"] = False
     st.session_state["allin"] = False
-    st.session_state["phase"] = "start"
+    st.session_state["player_point"] = 0
+    st.session_state["owner_point"] = 0
+    st.session_state["phase2"] = "start"
 
 # ===============================
 # フェーズ⑦：New Game
@@ -377,35 +397,35 @@ if st.button("New Game"):
     new_game()
 
 # 終了時
-if st.session_state["game_over"]:
+if st.session_state["game_over2"]:
     st.header("ゲーム終了！")
-    wins = sum(1 for r in st.session_state["round_history"] if r["outcome"] == "WIN")
-    draws = sum(1 for r in st.session_state["round_history"] if r["outcome"] == "DRAW")
-    losses = sum(1 for r in st.session_state["round_history"] if r["outcome"] == "LOSE")
+    wins = sum(1 for r in st.session_state["round_history2"] if r["outcome"] == "WIN")
+    draws = sum(1 for r in st.session_state["round_history2"] if r["outcome"] == "DRAW")
+    losses = sum(1 for r in st.session_state["round_history2"] if r["outcome"] == "LOSE")
     st.write(f"勝ち：{wins} 回 / 負け：{losses} 回 / 引き分け：{draws} 回")
-    st.write(f"最終チップ：{st.session_state['wallet']}")
+    st.write(f"最終チップ：{st.session_state['wallet2']}")
     st.write("**勝負履歴**")
-    for h in st.session_state["round_history"]:
+    for h in st.session_state["round_history2"]:
         st.write(f"Round {h['round']}: 勝敗 {h['outcome']} / 所持チップ {h['wallet_after']}")
 else:
-    st.write(f"### Round {st.session_state['round_counter']}")
-    st.write(f"所持チップ：{st.session_state['wallet']}")
+    st.write(f"### Round {st.session_state['round_counter2']}")
+    st.write(f"所持チップ：{st.session_state['wallet2']}")
 
     # ベット額設定
-    st.session_state["bet"] = st.number_input(
+    st.session_state["bet2"] = st.number_input(
         "ベット額",
         min_value=1,
-        max_value=st.session_state["wallet"],
-        value=st.session_state["bet"]
+        max_value=st.session_state["wallet2"],
+        value=st.session_state["bet2"]
     )
 
     # フェーズ① ベースカード
-    if st.session_state["phase"] == "start":
+    if st.session_state["phase2"] == "start":
         if st.button("ゲームを始める", on_click=draw_base_card):
             pass
 
     # フェーズ② firstopen
-    elif st.session_state["phase"] == "firstopen":
+    elif st.session_state["phase2"] == "firstopen":
         # カード表示（存在チェックして表示）
         p1 = st.session_state["player_card1"][0] if st.session_state["player_card1"] else None
         p2 = st.session_state["player_card2"][0] if st.session_state["player_card2"] else None
@@ -427,7 +447,7 @@ else:
             st.button("allin", on_click=firstopen, args=("allin",))
 
     # フェーズ③ secondopen
-    elif st.session_state["phase"] == "secondopen":
+    elif st.session_state["phase2"] == "secondopen":
         p1 = st.session_state["player_card1"][0] if st.session_state["player_card1"] else None
         p2 = st.session_state["player_card2"][0] if st.session_state["player_card2"] else None
         oc1 = st.session_state["open_card1"][0] if st.session_state["open_card1"] else None
@@ -449,7 +469,7 @@ else:
             st.button("allin", on_click=secondopen, args=("allin",))
 
     # フェーズ④ thirdopen
-    elif st.session_state["phase"] == "thirdopen":
+    elif st.session_state["phase2"] == "thirdopen":
         p1 = st.session_state["player_card1"][0] if st.session_state["player_card1"] else None
         p2 = st.session_state["player_card2"][0] if st.session_state["player_card2"] else None
         oc1 = st.session_state["open_card1"][0] if st.session_state["open_card1"] else None
@@ -472,10 +492,27 @@ else:
             st.button("allin", on_click=thirdopen, args=("allin",))
 
     # フェーズ⑤ 結果
-    elif st.session_state["phase"] == "calculate":
+    elif st.session_state["phase2"] == "calculate":
         calculate()
-        last = st.session_state["round_history"][-1]
-        st.write("ベースカード（player）:", st.session_state["player_card_list"])
-        st.write("ベースカード（owner）:", st.session_state["owner_card_list"])
+        last = st.session_state["round_history2"][-1]
+        p1 = st.session_state["player_card1"][0] if st.session_state["player_card1"] else None
+        p2 = st.session_state["player_card2"][0] if st.session_state["player_card2"] else None
+        o1 = st.session_state["owner_card1"][0] if st.session_state["owner_card1"] else None
+        o2 = st.session_state["owner_card2"][0] if st.session_state["owner_card2"] else None
+        oc1 = st.session_state["open_card1"][0] if st.session_state["open_card1"] else None
+        oc2 = st.session_state["open_card2"][0] if st.session_state["open_card2"] else None
+        oc3 = st.session_state["open_card3"][0] if st.session_state["open_card3"] else None
+        oc4 = st.session_state["open_card4"][0] if st.session_state["open_card4"] else None
+        oc5 = st.session_state["open_card5"][0] if st.session_state["open_card5"] else None
+        pp = st.session_state["player_point"]
+        op = st.session_state["owner_point"]
+        st.write(f"場のカード： {oc1[1]}の{oc1[0]} , {oc2[1]}の{oc2[0]} , {oc3[1]}の{oc3[0]} , {oc4[1]}の{oc4[0]} , {oc5[1]}の{oc5[0]}")
+        col5, col6 = st.columns(2)
+        with col5:
+            st.write(f"あなたの手札： {p1[1]} の {p1[0]} と {p2[1]} の {p2[0]}")
+            st.write(f"あなたの役：  {st.session_state["hands"][pp]}")
+        with col5:
+            st.write(f"相手の手札： {o1[1]} の {o1[0]} と {o2[1]} の {o2[0]}")
+            st.write(f"相手の役：  {st.session_state["hands"][op]}")
         st.write(f"結果： {last['outcome']}")
         st.button("Next Round", on_click=next_round)
