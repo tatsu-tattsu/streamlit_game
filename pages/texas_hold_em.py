@@ -27,7 +27,7 @@ def initialize_game():
     st.session_state["wallet2"] = 100
     st.session_state["bet2"] = 10
     st.session_state["round_counter2"] = 1
-    # st.session_state["player_card1"] = []
+    st.session_state["player_card1"] = []
     st.session_state["player_card2"] = []
     st.session_state["owner_card1"] = []
     st.session_state["owner_card2"] = []
